@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% load i18n mezzanine_tags keyword_tags disqus_tags %}
+
+{% block meta_title %}{% trans "Search Results" %}{% endblock %}
+{% block title %}{% trans "Search Results" %}{% endblock %}
+{% block extra_head %}
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block breadcrumb_menu %}
+<li>
+    <a href="{% url "home" %}">{% trans "Home" %}</a>
+</li>
+<li class="active">{% trans "Search Results" %}</li>
+{% endblock %}
+
+{% block main %}
+
+<p>
+{% if results.paginator.count == 0 %}
+{% blocktrans %}
+No results were found in {{ search_type }} matching your query: {{ query }}
+{% endblocktrans %}
+{% else %}
+{% blocktrans with start=results.start_index end=results.end_index total=results.paginator.count %}
+Showing {{ start }} to {{ end }} of {{ total }} results in {{ search_type }} matching your query: {{ query }}
+{% endblocktrans %}
+{% endif %}
+</p>
+
+<div id="search-results">
+{% for result in results.object_list %}
+{% with result.get_absolute_url as result_url %}
+    <div class="post-preview">
+        {% if result_url %}
+            {% editable result.title %}
+            <a href="{{ result_url }}">
+                <h2 class="post-title">
+                    {{ forloop.counter0|add:results.start_index }})
+                    {{ result.title }}
+                </h2>
+            </a>
+            {% endeditable %}
+        {% else %}
+            {{ result }}
+        {% endif %}
+        {% if settings.BLOG_USE_FEATURED_IMAGE and result.featured_image %}
+            {% block blog_post_list_post_featured_image %}
+            <a href="{{ result.get_absolute_url }}">
+                <img class="img-thumbnail" src="{{ MEDIA_URL }}{% thumbnail result.featured_image 800 450 %}" {% if result.retina %} data-at2x="{{MEDIA_URL}}{{ result.retina }}" {% endif %}>
+            </a>
+            {% endblock %}
+        {% endif %}
+        {% if result.description != result|stringformat:"s" %}
+        <p class="post-subtitle">
+            {% block blog_post_list_post_content %}
+                {% editable result.content %}
+                    {{ result.description_from_content|safe|truncatewords:50 }}
+                {% endeditable %}
+            {% endblock %}
+        </p>
+        {% endif %}
+        {% if result_url %}
+            <a href="{{ result_url }}">{% trans "read more" %}</a>
+        {% endif %}
+        <p class="post-meta">Posted by
+            {% with result.user as author %}
+                <a href="{% url "blog_post_list_author" author %}">{{ author.get_full_name|default:author.username }}</a>
+            {% endwith %}
+            {% blocktrans with sometime=result.publish_date %}{{ sometime }}{% endblocktrans %}
+        </p>
+        {% block blog_post_list_post_links %}
+            <div class="blog-list-detail">
+                {% keywords_for result as tags %}
+                {% if tags %}
+                <ul class="list-inline tags">
+                {% trans "Tags" %}:
+                {% spaceless %}
+                {% for tag in tags %}
+                <li><a href="{% url "blog_post_list_tag" tag.slug %}" class="tag">{{ tag }}</a>{% if not forloop.last %}, {% endif %}</li>
+                {% endfor %}
+                {% endspaceless %}
+                </ul>
+                {% endif %}
+                <p>
+                {% if result.allow_comments %}
+                {% if settings.COMMENTS_DISQUS_SHORTNAME %}
+                <a href="{{ result.get_absolute_url }}#disqus_thread"
+                    data-disqus-identifier="{% disqus_id_for result %}">
+                    {% trans "Comments" %}
+                </a>
+                {% else %}
+                <a href="{{ result.get_absolute_url }}#comments">
+                    {% blocktrans count comments_count=result.comments_count %}{{ comments_count }} comment{% plural %}{{ comments_count }} comments{% endblocktrans %}
+                </a>
+                {% endif %}
+                {% endif %}
+                </p>
+            </div>
+            {% endblock %}
+    </div>
+{% endwith %}
+{% endfor %}
+</div>
+
+{% pagination_for results %}
+
+{% endblock %}

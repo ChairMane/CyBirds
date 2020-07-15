@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load i18n mezzanine_tags pages_tags blog_tags keyword_tags disqus_tags %}
+
+{% block meta_title %}{% if page %}{{ page.meta_title }}{% else %}{% trans "Projects" %}{% endif %}{% endblock %}
+
+{% block meta_keywords %}{% metablock %}
+{% keywords_for page as keywords %}
+{% for keyword in keywords %}
+    {% if not forloop.first %}, {% endif %}
+    {{ keyword }}
+{% endfor %}
+{% endmetablock %}{% endblock %}
+
+{% block meta_description %}{% metablock %}
+{{ page.description }}
+{% endmetablock %}{% endblock %}
+
+{% block title %}
+{% if page %}
+{% editable page.title %}{{ page.title }}{% endeditable %}
+{% else %}
+{% trans "Projects" %}
+{% endif %}
+{% endblock %}
+
+{% block pageheader %}
+  <!-- Page Header -->
+  <header class="masthead" style="background-image: url('{{MEDIA_URL}}uploads/project/64801421.jpg')">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="site-heading">
+            <h1>Projects</h1>
+            <span class="subheading">A list of my personal projects</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+{% endblock %}
+
+{% block main %}
+  {% for project in projects.object_list %}
+          <div class="post-preview">
+            {% editable project.title %}
+            <a href="{{ project.get_absolute_url }}">
+              <h2 class="post-title">
+                {{ project.title }}
+              </h2>
+            </a>
+            {% endeditable %}
+              {% if settings.BLOG_USE_FEATURED_IMAGE and project.featured_image %}
+                  {% block blog_post_list_post_featured_image %}
+                  <a href="{{ project.get_absolute_url }}">
+                      <img class="img-thumbnail" src="{{ MEDIA_URL }}{% thumbnail project.featured_image 800 450 %}">
+                  </a>
+                  {% endblock %}
+              {% endif %}
+              <p class="post-subtitle">
+                  {% block blog_post_list_post_content %}
+                      {% editable project.content %}
+                          {{ project.description_from_content|safe|truncatewords:50 }}
+                          <a href="{{ project.get_absolute_url }}">{% trans "read more" %}</a>
+                      {% endeditable %}
+                  {% endblock %}
+              </p>
+            </p>
+              {% block blog_post_list_post_links %}
+              <div class="blog-list-detail">
+                  {% keywords_for blog_post as tags %}
+                  {% if tags %}
+                  <ul class="list-inline tags">
+                  {% trans "Tags" %}:
+                  {% spaceless %}
+                  {% for tag in tags %}
+                  <li><a href="{% url "blog_post_list_tag" tag.slug %}" class="tag">{{ tag }}</a>{% if not forloop.last %}, {% endif %}</li>
+                  {% endfor %}
+                  {% endspaceless %}
+                  </ul>
+                  {% endif %}
+              </div>
+              {% endblock %}
+          </div>
+          <hr>
+
+  {% endfor %}
+{% endblock %}
