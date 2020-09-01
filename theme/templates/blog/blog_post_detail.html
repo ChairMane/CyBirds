@@ -36,7 +36,7 @@
             <h6 class="meta">
                 {% trans "Posted by" %}:
                 {% with blog_post.user as author %}
-                <a href="{% url "blog_post_list_author" author %}">{{ author.get_full_name|default:author.username }}</a>
+                <a>{{ author.get_full_name|default:author.username }}</a>
                 {% endwith %}
                 {% blocktrans with sometime=blog_post.publish_date %}{{ sometime }}{% endblocktrans %} |
                 {% if blog_post.allow_comments %}
@@ -86,21 +86,50 @@
 {% endif %}
 {% endblock %}
 
+{% block blog_post_detail_comments %}
+{% if blog_post.allow_comments %}{% comments_for blog_post %}{% endif %}
+{% endblock %}
+
+<br>
+
 {% block blog_post_detail_related_posts %}
 {% if related_posts %}
 <div id="related-posts">
 <h3>{% trans 'Related posts' %}</h3>
 <ul class="list-unstyled">
+<div class="card-deck">
 {% for post in related_posts %}
-     <li><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></li>
+      <div class="card" style="width: 18rem;">
+        <a href="{{ post.get_absolute_url }}">
+          <img class="card-img-top" src="{{ MEDIA_URL }}{% thumbnail post.featured_image 1900 1069 %}" alt="Card image cap">
+        </a>
+        <div class="card-body">
+          <a href="{{ post.get_absolute_url }}">
+            <h5 class="card-title">{{ post.title }}</h5>
+          </a>
+          {% if post.description != post|stringformat:"s" %}
+            <p class="post-subtitle">
+              {% block blog_post_list_post_content %}
+                  {% editable post.content %}
+                    {{ post.description_from_content|safe|truncatewords:10 }}
+                  {% endeditable %}
+              {% endblock %}
+            </p>
+          {% endif %}
+          <a href="{{ post.get_absolute_url }}" class="btn btn-primary btn-block">Read</a>
+        </div>
+      </div>
 {% endfor %}
+</div>
 </ul>
 </div>
 {% endif %}
 {% endblock %}
 
-{% block blog_post_detail_comments %}
-{% if blog_post.allow_comments %}{% comments_for blog_post %}{% endif %}
 {% endblock %}
 
-{% endblock %}
+
+    <!-- li>
+      <a style="background-image: url('{{ MEDIA_URL }}{% thumbnail blog_post.featured_image 1900 1069 %}');"></a>
+      <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+    </li -->
