@@ -20,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 # Controls the ordering and grouping of the admin menu.
 #
 ADMIN_MENU_ORDER = (
-    ("Content", ("pages.Page", "blog.BlogPost", "theme.Projects",
+    ("Content", ("pages.Page", "blog.BlogPost",
        "generic.ThreadedComment", (_("Media Library"), "media-library"),)),
     ("Site", ("sites.Site", "redirects.Redirect", "conf.Setting")),
     ("Users", ("auth.User", "auth.Group",)),
@@ -357,3 +357,4 @@ COMMENTS_USE_RATINGS = False
 BLOG_USE_FEATURED_IMAGE = True
 SITE_TITLE = 'ChairBirds'
 #TINYMCE_SETUP_JS = "tinymce_setup.js"
+PROJECTS_PER_PAGE = 10

@@ -42,7 +42,11 @@
 {% endblock %}
 
 {% block main %}
+
   {% for project in projects.object_list %}
+    {% if forloop.counter0|divisibleby:"3" %}
+      <div class="row" style="padding-top: .8em;">
+    {% endif %}
     <div class="col-md">
       <div class="card">
         {% if settings.BLOG_USE_FEATURED_IMAGE and project.featured_image %}
@@ -53,11 +57,16 @@
           {% endblock %}
         {% endif %}
         <div class="card-body">
-          <h5 class="card-title">{{ project.title }}</h5>
+          <a href="{{ project.get_absolute_url }}">
+            <h5 class="card-title">{{ project.title }}</h5>
+          </a>
           <p class="card-text">{{ project.description_from_content|safe|truncatewords:50 }}</p>
           <a href="{{ project.get_absolute_url }}">{% trans "read more" %}</a>
         </div>
       </div>
     </div>
+    {% if forloop.counter|divisibleby:"3" or forloop.last%}
+      </div>
+    {% endif %}
   {% endfor %}
 {% endblock %}

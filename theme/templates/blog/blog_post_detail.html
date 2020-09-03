@@ -111,7 +111,7 @@
             <p class="post-subtitle">
               {% block blog_post_list_post_content %}
                   {% editable post.content %}
-                    {{ post.description_from_content|safe|truncatewords:10 }}
+                    {{ post.description_from_content|safe|truncatewords:5 }}
                   {% endeditable %}
               {% endblock %}
             </p>

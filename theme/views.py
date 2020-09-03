@@ -8,7 +8,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
 #from mezzanine.blog.models import BlogPost, BlogCategory
-from theme.models import Projects, ProjectsCategory
+from mezzanine.blog.models import BlogPost, BlogCategory
 from mezzanine.blog.feeds import PostsRSS, PostsAtom
 from mezzanine.conf import settings
 from mezzanine.generic.models import Keyword
@@ -21,7 +21,7 @@ def blog_redirect(request):
 
 
 def project_list(request, tag=None, year=None, month=None, username=None,
-                   category=None, template="projects/projects.html",
+                   category='project', template="projects/projects.html",
                    extra_context=None):
     """
     Display a list of blog posts that are filtered by tag, year, month,
@@ -29,8 +29,10 @@ def project_list(request, tag=None, year=None, month=None, username=None,
     ``blog/project_list_XXX.html`` where ``XXX`` is either the
     category slug or author's username if given.
     """
+# TODO HERE IS WHAT IS NEXT
+# I HAVE TO FIGURE OUT HOW TO GET OBJECTS BY THEIR TAGS
     templates = []
-    projects = Projects.objects.published(for_user=request.user)
+    projects = BlogPost.objects.published(for_user=request.user)
     if tag is not None:
         tag = get_object_or_404(Keyword, slug=tag)
         projects = projects.filter(keywords__keyword=tag)
@@ -56,7 +58,7 @@ def project_list(request, tag=None, year=None, month=None, username=None,
     prefetch = ("categories", "keywords__keyword")
     projects = projects.select_related("user").prefetch_related(*prefetch)
     projects = paginate(projects, request.GET.get("page", 1),
-                          settings.BLOG_POST_PER_PAGE,
+                          settings.PROJECTS_PER_PAGE,
                           settings.MAX_PAGING_LINKS)
     context = {"projects": projects, "year": year, "month": month,
                "tag": tag, "category": category, "author": author}
@@ -72,7 +74,7 @@ def project_detail(request, slug, year=None, month=None, day=None,
     ``blog/project_detail_XXX.html`` where ``XXX`` is the blog
     posts's slug.
     """
-    projects = Projects.objects.published(
+    projects = BlogPost.objects.published(
                                      for_user=request.user).select_related()
     project = get_object_or_404(projects, slug=slug)
     related_posts = project.related_posts.published(for_user=request.user)

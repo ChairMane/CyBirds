@@ -143,7 +143,7 @@
           
           <p class="post-meta">Posted by
             {% with blog_post.user as author %}
-                <a href="{% url "blog_post_list_author" author %}">{{ author.get_full_name|default:author.username }}</a>
+                <a>{{ author.get_full_name|default:author.username }}</a>
             {% endwith %}
             {% blocktrans with sometime=blog_post.publish_date %}{{ sometime }}{% endblocktrans %}
           </p>
